@@ -5,7 +5,7 @@ const cors = require('cors');
 const Redis = require('ioredis');
 const { rateLimit } = require('express-rate-limit');
 const { RedisStore } = require('rate-limit-redis');
-
+const { validateToken } = require('./middlewares/authMiddleware');
 const proxy = require('express-http-proxy');
 const errorHandler = require("./middlewares/errorHandler");
 
@@ -60,7 +60,32 @@ const proxyOptions = {
     }
 };
 
-app.use('/v1/auth', proxy(process.env.IDENTITY_SERVICE_URL, proxyOptions));
+app.use('/v1/auth', proxy(process.env.IDENTITY_SERVICE_URL, { ...proxyOptions,
+        proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+        proxyReqOpts.headers["Content-Type"] = "application/json";
+        return proxyReqOpts;
+    },
+
+        userResDecorator: (proxyRes, proxyResData, userReq, userRes) => {
+        console.log(`Proxying request to Identity Service: ${userReq.method} ${userReq.originalUrl}`);
+        return proxyResData;
+    }
+})
+);
+
+app.use('/v1/posts',validateToken, proxy(process.env.POST_SERVICE_URL, { ...proxyOptions,
+    proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+        proxyReqOpts.headers["Content-Type"] = "application/json";
+        proxyReqOpts.headers["x-user-id"] = srcReq.user.userId;
+        return proxyReqOpts;
+    },
+
+    userResDecorator: (proxyRes, proxyResData, userReq, userRes) => {
+        console.log(`Proxying request to POST Service: ${userReq.method} ${userReq.originalUrl}`);
+        return proxyResData;
+    }
+})
+);
 
 app.use(errorHandler);
 

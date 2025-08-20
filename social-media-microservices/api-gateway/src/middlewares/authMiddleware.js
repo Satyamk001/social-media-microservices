@@ -5,7 +5,7 @@ const validateToken = (req, res, next) => {
 
     if (!token) {
         logger.warn('No token provided');
-        return res.status(401).json({ success : false , message: 'Unauthorized' });
+        return res.status(401).json({ success : false , message: 'Unauthorized or \'No token provided\'' });
     }
 
     // Here you would typically verify the token with your auth service
@@ -21,7 +21,6 @@ const validateToken = (req, res, next) => {
         req.user = decoded; // Attach user info to request object
         next();
     })
-
 }
 
 module.exports = { validateToken };
