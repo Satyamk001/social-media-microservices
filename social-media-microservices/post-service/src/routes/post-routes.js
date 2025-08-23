@@ -5,5 +5,9 @@ const { authenticateRequest } = require('../middlewares/authMiddleware');
 
 // Route to create a new post
 router.post('/', authenticateRequest, postController.createPost);
+router.get('/:id', authenticateRequest, postController.getPostById);
+router.get('/', authenticateRequest, postController.getPosts);
+router.delete('/:id', authenticateRequest, postController.deletePost);
+// router.post('/', authenticateRequest, postController.createPost);
 
 module.exports = router;

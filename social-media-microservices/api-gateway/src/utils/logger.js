@@ -8,7 +8,7 @@ const logger = winston.createLogger({
         winston.format.splat(),
         winston.format.errors({ stack: true })
     ),
-    defaultMeta : { service: 'identity-service' },
+    defaultMeta : { service: 'api-gateway-service' },
     transports: [
         new winston.transports.Console({
             format: winston.format.combine(
@@ -17,7 +17,7 @@ const logger = winston.createLogger({
             )
         }),
         new winston.transports.File({
-            filename: 'logs/identity-service-error.log',
+            filename: 'logs/api-gateway-error.log',
             level: 'error',
 
         }),

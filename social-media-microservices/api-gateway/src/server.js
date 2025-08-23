@@ -51,11 +51,7 @@ const proxyOptions = {
     },
     proxyErrorHandler: (err, req, res, next) => {
         console.error('Proxy error:', err);
-        res.status(500).json({
-            success: false,
-            message: 'Internal Server Error',
-            error: process.env.NODE_ENV === 'production' ? null : err.stack
-        });
+
         next(err);
     }
 };
@@ -82,6 +78,21 @@ app.use('/v1/posts',validateToken, proxy(process.env.POST_SERVICE_URL, { ...prox
 
     userResDecorator: (proxyRes, proxyResData, userReq, userRes) => {
         console.log(`Proxying request to POST Service: ${userReq.method} ${userReq.originalUrl}`);
+        return proxyResData;
+    }
+})
+
+);app.use('/v1/media',validateToken, proxy(process.env.MEDIA_SERVICE_URL, { ...proxyOptions,
+    proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+        proxyReqOpts.headers["x-user-id"] = srcReq.user.userId;
+        // if(!srcReq.headers["Content-Type"].startsWith('multipart/form-data')) {
+        //     proxyReqOpts.headers["Content-Type"] = "application/json";
+        // }
+        return proxyReqOpts;
+    },
+
+    userResDecorator: (proxyRes, proxyResData, userReq, userRes) => {
+        console.log(`Proxying request to MEDIA Service: ${userReq.method} ${userReq.originalUrl}`);
         return proxyResData;
     }
 })

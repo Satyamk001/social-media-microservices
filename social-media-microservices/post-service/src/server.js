@@ -6,6 +6,7 @@ const postRoutes = require('./routes/post-routes');
 const logger = require('./utils/logger');
 const helmet = require('helmet');
 const errorHandler = require('./middlewares/errorHandler');
+const {connectRabbitMQ} = require('./utils/rabbitmq');
 const Redis = require('ioredis');
 const app = express();
 
@@ -50,9 +51,18 @@ app.use('/api/posts',(req,res,next)=>{
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-    logger.info(`Identity Service running on port ${process.env.PORT}`);
-});
+async function startServer() {
+    try {
+        await connectRabbitMQ();
+        app.listen(PORT, () => {
+            logger.info(`Post Service running on port ${PORT}`);
+        });
+    } catch (error) {
+        logger.error('Failed to start server:', error);
+        process.exit(1);
+    }
+}
+startServer();
 
 process.on('unhandledRejection', error => {
     logger.error('Unhandled Rejection:', error.message);
