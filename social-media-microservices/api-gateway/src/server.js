@@ -8,7 +8,7 @@ const { RedisStore } = require('rate-limit-redis');
 const { validateToken } = require('./middlewares/authMiddleware');
 const proxy = require('express-http-proxy');
 const errorHandler = require("./middlewares/errorHandler");
-
+const logger = require("./utils/logger");
 const app = express();
 const PORT = process.env.PORT || 3000;
 const redisClient = new Redis(process.env.REDIS_URL);
@@ -101,7 +101,9 @@ app.use('/v1/posts',validateToken, proxy(process.env.POST_SERVICE_URL, { ...prox
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-    console.log(`API Gateway is running on port ${PORT}`);
-    console.log(`Proxying requests to Identity Service at ${process.env.IDENTITY_SERVICE_URL}`);
-    console.log(`Redis is connected at ${process.env.REDIS_URL}`);
+   logger.info('API Gateway running on port', PORT);
+   logger.info(`Proxying /v1/auth to ${process.env.IDENTITY_SERVICE_URL}`);
+   logger.info(`Proxying /v1/posts to ${process.env.POST_SERVICE_URL}`);
+   logger.info(`Proxying /v1/media to ${process.env.MEDIA_SERVICE_URL}`);
+   logger.info('Redis connected:', redisClient.status);
 });
