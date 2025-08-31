@@ -1,11 +1,11 @@
 
 services:
   api-gateway:
-    build: ../api-gateway
+    build: ./api-gateway
     ports:
       - "3000:3000"
     env_file:
-      - ../api-gateway/.env
+      - ./api-gateway/.env
     depends_on:
       - redis
       - rabbitmq
@@ -14,11 +14,11 @@ services:
       - RABBITMQ_URL=amqp://rabbitmq:5672
 
   identity-service:
-    build: ../identity-service
+    build: ./identity-service
     ports:
       - "3001:3000"
     env_file:
-      - ../identity-service/.env
+      - ./identity-service/.env
     depends_on:
       - redis
       - rabbitmq
@@ -27,11 +27,11 @@ services:
       - RABBITMQ_URL=amqp://rabbitmq:5672
 
   post-service:
-    build: ../post-service
+    build: ./post-service
     ports:
       - "3002:3000"
     env_file:
-      - ../post-service/.env
+      - ./post-service/.env
     depends_on:
       - redis
       - rabbitmq
@@ -40,11 +40,11 @@ services:
       - RABBITMQ_URL=amqp://rabbitmq:5672
 
   media-service:
-    build: ../media-service
+    build: ./media-service
     ports:
       - "3003:3000"
     env_file:
-      - ../media-service/.env
+      - ./media-service/.env
     depends_on:
       - redis
       - rabbitmq
